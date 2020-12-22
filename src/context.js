@@ -8,8 +8,8 @@ const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('a');
   const [cocktails, setCocktails] = useState([]);
-
-  const fetchDrinks = async () => {
+  //adding useCallback to avoid infinite loop that would happen when we add fetch drinks as dependency to useEffects. If we dnt then react throws warning
+  const fetchDrinks = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${url + searchTerm}`);
@@ -41,11 +41,11 @@ const AppProvider = ({ children }) => {
       console.log(error);
       setLoading(false);
     }
-  };
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchDrinks();
-  }, [searchTerm]);
+  }, [searchTerm, fetchDrinks]);
 
   return (
     <AppContext.Provider value={{ loading, cocktails, setSearchTerm }}>
@@ -53,7 +53,7 @@ const AppProvider = ({ children }) => {
     </AppContext.Provider>
   );
 };
-// make sure use
+//custom hook for context
 export const useGlobalContext = () => {
   return useContext(AppContext);
 };
